@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.35); 
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.8);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+  font-family: Roboto;
+}
+
+
+.cl-avatarBox {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.cl-formButtonPrimary{
+  background-color: rgb(38, 95, 226);
+}
+
+.cl-internal-2iusy0 {
+  color: white;
+}
+.cl-internal-1hp5nqm {
+  display: none !important;
+}
+.cl-formButtonPrimary {
+  box-shadow: none !important;
+}
+.cl-internal-1dauvpw {
+  display: none !important;
+}
+.cl-internal-l2l775{
+    display: none !important;
+
+}

@@ -1,47 +1,71 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
 
-export default function App() {
-  const [instruction, setInstruction] = useState("");
-  const [lastCmd, setLastCmd] = useState(null);
-  const [status, setStatus] = useState("");
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
-  async function send() {
-    setStatus("sending...");
-    try {
-      const resp = await fetch("http://localhost:4000/mcp/figma/create", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ instruction })
-      });
-      const data = await resp.json();
-      setLastCmd(data.command);
-      setStatus("queued");
-    } catch (e) {
-      setStatus("error: " + e.message);
-    }
-  }
+import PromptPage from "./components/PromptPage";
+import SignInPage from "./components/SignInPage";
+import SignUpPage from "./components/SignUpPage";
+import DashboardPage from "./components/DashboardPage";
+import LearnMore from "./components/LearnMore";
+import bgImage from "./assets/bg.png";
+
+const App = () => {
+  const location = useLocation();
+
+  // 🧠 Dynamic Page Titles
+  useEffect(() => {
+    const titles = {
+      "/": "Figma MCP Generator",
+      "/signin": "Sign In | Figma MCP",
+      "/signup": "Sign Up | Figma MCP",
+      "/dashboard": "Dashboard | Figma MCP",
+    };
+    document.title = titles[location.pathname] || "Figma MCP";
+  }, [location]);
 
   return (
-    <div style={{maxWidth:720, margin:"2rem auto", fontFamily:"sans-serif"}}>
-      <h1>Figma AI Designer</h1>
-      <p>Type something like: <em>Create a large blue login button with text 'Sign In'</em></p>
-      <textarea
-        value={instruction}
-        onChange={e => setInstruction(e.target.value)}
-        rows={4}
-        style={{width:"100%", padding:12}}
-      />
-      <div style={{marginTop:12}}>
-        <button onClick={send} style={{padding:"10px 16px"}}>Send to Figma</button>
-        <span style={{marginLeft:12}}>{status}</span>
-      </div>
+    <div className="min-h-screen flex flex-col bg-linear-to-br from-slate-900 via-slate-800 to-slate-950 text-white"
+    style={{
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundAttachment: "fixed",
+            backgroundRepeat: "no-repeat",
+            minHeight: "100vh"
+          }}>
+      <Header />
 
-      {lastCmd && (
-        <div style={{marginTop:18}}>
-          <h3>Last JSON command</h3>
-          <pre style={{background:"#f7f7f7", padding:12}}>{JSON.stringify(lastCmd,null,2)}</pre>
-        </div>
-      )}
+      <main className="grow">
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/learnMore" element={<LearnMore />} />
+          <Route
+            path="/dashboard"
+            element={
+              <>
+                <SignedIn>
+                  <PromptPage />
+                </SignedIn>
+
+                <SignedOut>
+                  <Navigate to="/signin" replace />
+                </SignedOut>
+              </>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+
+      <Footer />
     </div>
   );
-}
+};
+
+export default App;
