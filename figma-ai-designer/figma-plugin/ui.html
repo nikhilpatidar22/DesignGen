@@ -3,7 +3,53 @@
   <body>
     <div style="font-family:sans-serif;padding:12px;">
       <h3>AI MCP Bridge</h3>
-      <p>Plugin is polling local backend for commands.</p>
+      <div id="status">Connecting...</div>
+      <div id="last-command" style="font-size: 10px; color: #666; margin-top: 8px;"></div>
     </div>
+    <script>
+      const BACKEND_URL = "http://127.0.0.1:4000/mcp/figma/next";
+      const POLL_INTERVAL = 1000;
+
+      function updateStatus(msg) {
+        document.getElementById('status').textContent = msg;
+      }
+
+      async function pollBackend() {
+        try {
+          updateStatus("Polling backend...");
+          const res = await fetch(BACKEND_URL);
+          if (!res.ok) {
+            updateStatus("Backend error: " + res.status);
+            return;
+          }
+
+          const cmd = await res.json();
+          
+          if (cmd && cmd.status !== "no-command") {
+            updateStatus("Executing: " + cmd.command);
+            document.getElementById('last-command').textContent = JSON.stringify(cmd).substring(0, 100) + "...";
+            
+            // Send to plugin code
+            parent.postMessage({ 
+              pluginMessage: { 
+                type: 'execute-command', 
+                command: cmd.command, 
+                params: cmd.params 
+              } 
+            }, '*');
+          } else {
+            updateStatus("Idle (Waiting for commands)");
+          }
+        } catch (e) {
+          updateStatus("Connection failed: " + e.message);
+          console.error("Polling error:", e);
+        } finally {
+          setTimeout(pollBackend, POLL_INTERVAL);
+        }
+      }
+
+      // Start polling
+      pollBackend();
+    </script>
   </body>
 </html>

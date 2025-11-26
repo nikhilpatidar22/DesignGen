@@ -84,12 +84,14 @@ def convert_prompt_to_command(user_prompt):
         print(f"❌ Error generating design: {str(e)}")
         # Return a safe fallback to prevent frontend crash
         return [{
-            "type": "text", 
-            "x": 100, 
-            "y": 100, 
-            "text": f"Error: {str(e)}", 
-            "fontSize": 24, 
-            "color": "#FF0000"
+            "command": "create_text",
+            "params": {
+                "x": 100, 
+                "y": 100, 
+                "text": f"Error: {str(e)}", 
+                "fontSize": 24, 
+                "fontColor": {"r": 1, "g": 0, "b": 0, "a": 1}
+            }
         }]
 
 @app.route("/mcp/figma", methods=["POST"])
