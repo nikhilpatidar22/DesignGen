@@ -27,15 +27,8 @@ const App = () => {
   }, [location]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-linear-to-br from-slate-900 via-slate-800 to-slate-950 text-white"
-    style={{
-            backgroundImage: `url(${bgImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundAttachment: "fixed",
-            backgroundRepeat: "no-repeat",
-            minHeight: "100vh"
-          }}>
+    <div className="min-h-screen flex flex-col bg-slate-900 text-white bg-cover bg-center bg-fixed bg-no-repeat"
+      style={{ backgroundImage: `url(${bgImage})` }}>
       <Header />
 
       <main className="grow">

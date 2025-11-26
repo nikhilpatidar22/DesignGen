@@ -2,17 +2,18 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import queue
 import os
-from google.genai import Client
 from dotenv import load_dotenv
 import json
 import ast
 import re
 from groq import Groq
+from mistralai import Mistral
 
 
 import json
 load_dotenv()
 
+<<<<<<< HEAD
 # Get API key from environment
 # api_key = os.getenv("GOOGLE_API")
 # if not api_key:
@@ -21,9 +22,13 @@ load_dotenv()
 # Initialize Gemini client with API key
 # client = Client(api_key=api_key)
 # print(api_key)
+=======
+# Initialize Flask App
+>>>>>>> 1edad5d5d8f8dcd57339061dc507e7c941466295
 app = Flask(__name__)
 CORS(app)
 
+# In-memory queue (Note: For production, use Redis)
 command_queue = queue.Queue()
 api_key=os.getenv("GROQ_API_KEY")
 print(api_key)
@@ -37,9 +42,24 @@ print(api_key)
 
 
 
-# Convert prompt to Figma commands using Gemini
-def convert_prompt_to_command(prompt):
+# Load System Prompt
+PROMPT_PATH = os.path.join(os.path.dirname(__file__), "prompts", "system_prompt.txt")
+try:
+    with open(PROMPT_PATH, "r", encoding="utf-8") as f:
+        SYSTEM_PROMPT_TEMPLATE = f.read()
+except FileNotFoundError:
+    print(f"⚠️ Warning: System prompt not found at {PROMPT_PATH}. Using default.")
+    SYSTEM_PROMPT_TEMPLATE = "You are a design assistant. Convert prompt to JSON Figma elements."
+
+def get_groq_client():
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY not found in environment variables")
+    return Groq(api_key=api_key)
+
+def convert_prompt_to_command(user_prompt):
     try:
+<<<<<<< HEAD
         instruction = """
            
            You are an expert Figma designer. Your task is to convert user prompts into valid JSON arrays of Figma design elements.
@@ -129,8 +149,14 @@ def convert_prompt_to_command(prompt):
         """
 
 
+=======
+        client = get_groq_client()
+>>>>>>> 1edad5d5d8f8dcd57339061dc507e7c941466295
         
+        # Construct the full prompt
+        full_instruction = SYSTEM_PROMPT_TEMPLATE.replace("{prompt}", user_prompt)
 
+<<<<<<< HEAD
         # response = client.models.generate_content(
         #     model="gemini-2.5-flash",
         #     contents=instruction
@@ -142,19 +168,30 @@ def convert_prompt_to_command(prompt):
         
 
         chat_completion= response.chat.completions.create(
+=======
+        print(f"📩 Full Instruction: {full_instruction}")
+
+        chat_completion = client.chat.completions.create(
+>>>>>>> 1edad5d5d8f8dcd57339061dc507e7c941466295
             messages=[
                 {
+                    "role": "system",
+                    "content": "You are a JSON generator. Output only valid JSON array. No markdown, no explanations."
+                },
+                {
                     "role": "user",
-                    "content": instruction,
+                    "content": full_instruction,
                 }
             ],
             model="llama-3.3-70b-versatile",
+            temperature=0.5, # Lower temperature for more deterministic JSON
         )
         # gemini_response = client.models.generate_content(
         #     model="gemini-2.0-flash",
         #     contents=instruction
         # )
 
+<<<<<<< HEAD
         generated_text = chat_completion.text
         print("Generated Text:", generated_text)
 
@@ -162,6 +199,27 @@ def convert_prompt_to_command(prompt):
 
         command_list = json.loads(generated_text)
 
+=======
+        with open("output.txt", "w", encoding="utf-8") as f:
+            f.write(generated_text)
+
+        print(f"🤖 AI Response: {generated_text[:100]}...") # Log first 100 chars
+
+        # Clean up response (remove markdown code blocks if present)
+        cleaned_text = re.sub(r"^```json\s*|\s*```$", "", generated_text.strip(), flags=re.MULTILINE)
+
+        # Parse JSON
+        try:
+            command_list = json.loads(cleaned_text)
+        except json.JSONDecodeError:
+            # Fallback: try ast.literal_eval for single-quote JSON variants
+            command_list = ast.literal_eval(cleaned_text)
+
+        # Ensure it's a list
+        if isinstance(command_list, dict):
+            command_list = [command_list]
+            
+>>>>>>> 1edad5d5d8f8dcd57339061dc507e7c941466295
         return command_list
 
     #     response = client.responses.create(
@@ -182,29 +240,33 @@ def convert_prompt_to_command(prompt):
 
 
     except Exception as e:
-        print("Error in Gemini API:", e)
-        # fallback: return default rectangle
-        return [{"type": "rectangle", "width": 200, "height": 100, "color": "#0000FF", "text": "Sign Up"}]
+        print(f"❌ Error generating design: {str(e)}")
+        # Return a safe fallback to prevent frontend crash
+        return [{
+            "type": "text", 
+            "x": 100, 
+            "y": 100, 
+            "text": f"Error: {str(e)}", 
+            "fontSize": 24, 
+            "color": "#FF0000"
+        }]
 
-
-# Receive prompt from frontend
 @app.route("/mcp/figma", methods=["POST"])
 def mcp_figma():
     data = request.json
     prompt = data.get("prompt", "")
     if not prompt:
-        return jsonify({"status": "error", "msg": "Prompt missing"})
+        return jsonify({"status": "error", "msg": "Prompt missing"}), 400
 
+    print(f"📩 Received prompt: {prompt}")
     commands = convert_prompt_to_command(prompt)
 
-    # Add each command separately to the queue so Figma plugin can process one at a time
+    # Add to queue
     for cmd in commands:
         command_queue.put(cmd)
 
     return jsonify({"status": "ok", "queued_count": len(commands)})
 
-
-# Figma plugin polls this endpoint
 @app.route("/mcp/figma/next", methods=["GET"])
 def mcp_next():
     if command_queue.empty():
@@ -212,7 +274,6 @@ def mcp_next():
     cmd = command_queue.get()
     return jsonify(cmd)
 
-
 if __name__ == "__main__":
-    print("🚀 MCP Backend with Gemini running at http://127.0.0.1:4000")
-    app.run(host="127.0.0.1", port=4000)
+    print("🚀 DesignGen Backend running at http://127.0.0.1:4000")
+    app.run(host="127.0.0.1", port=4000, debug=True)
