@@ -220,4 +220,4 @@ async function pollBackend() {
 }
 
 pollBackend();
-figma.notify("MCP Figma plugin running...");
+figma.notify("MCP Figma plugin running (Auto-Layout Enabled)...");
