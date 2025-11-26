@@ -1,5 +1,5 @@
 
-const POLL_INTERVAL = 1000;
+const POLL_INTERVAL = 100000;
 const BACKEND_URL = "http://127.0.0.1:4000/mcp/figma/next";
 
 // Convert hex color (#RRGGBB) to RGB object for Figma
@@ -203,7 +203,7 @@ async function createNode(el) {
 
 //     if (Array.isArray(cmds)) {
 //       for (const cmd of cmds) {
-//         await createNode(cmd);
+//         await createNode(cmd);~
 //       }
 //     } else if (cmds.status !== "no-command") {
 //       await createNode(cmds);

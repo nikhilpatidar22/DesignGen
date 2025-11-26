@@ -1,0 +1,54 @@
+{
+  "layout": {
+    "rules": [
+      "Use clear hierarchy with proper spacing",
+      "Group related elements logically",
+      "Use 8px spacing scale for consistency",
+      "Ensure visual balance between sections",
+      "Keep layouts responsive and grid-aligned"
+    ]
+  },
+
+  "colors": {
+    "rules": [
+      "Use a consistent color palette with 1 primary, 1 secondary, and 1 accent color",
+      "High contrast for text vs background",
+      "Avoid overly bright or saturated colors unless necessary",
+      "Use neutral backgrounds for readability"
+    ]
+  },
+
+  "typography": {
+    "rules": [
+      "Use max 2 font families",
+      "Headings should be bold and large",
+      "Body text should be 14–18px for readability",
+      "Maintain consistent line heights and spacing"
+    ]
+  },
+
+  "components": {
+    "rules": [
+      "Buttons must have clear call-to-action text",
+      "Forms should be minimal with clear labels",
+      "Use icons to improve clarity but sparingly",
+      "Cards should use subtle shadows and rounded corners"
+    ]
+  },
+
+  "images": {
+    "rules": [
+      "Use high-quality images",
+      "Apply consistent border radius if used",
+      "Avoid cluttering with too many visuals"
+    ]
+  },
+
+  "accessibility": {
+    "rules": [
+      "Ensure text is readable (minimum 4.5:1 contrast)",
+      "Buttons and clickable items must be large enough",
+      "Avoid excessive animations"
+    ]
+  }
+}
